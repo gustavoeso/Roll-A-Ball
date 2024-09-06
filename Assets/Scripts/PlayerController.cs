@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     public TextMeshProUGUI countText;
     public GameObject winTextObject;
     private int count;
+    private bool jump = false;
 
     void Start(){
         rb = GetComponent <Rigidbody>();
@@ -38,15 +39,24 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void Update() {
+        // Detecta o pulo ao pressionar a tecla de espaço
+        if (jump && isGrounded)
+        {
+            isGrounded = false;
+            jump = false;
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);  // Aplica uma força de impulso para o pulo
+        }
+    }
+
+    void OnJump(){
+        if (isGrounded)
+           jump = true;
+    }
+
     private void FixedUpdate(){
         Vector3 movement = new Vector3(movementX, 0.0f, movementY);
         rb.AddForce(movement * speed);
-
-        // Detecta o pulo ao pressionar a tecla de espaço
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);  // Aplica uma força de impulso para o pulo
-        }
     }
 
     void OnCollisionStay(){
