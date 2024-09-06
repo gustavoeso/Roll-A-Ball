@@ -41,12 +41,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update() {
         // Detecta o pulo ao pressionar a tecla de espaço
-        if (jump && isGrounded)
-        {
-            isGrounded = false;
-            jump = false;
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);  // Aplica uma força de impulso para o pulo
-        }
+        
     }
 
     void OnJump(){
@@ -57,13 +52,19 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate(){
         Vector3 movement = new Vector3(movementX, 0.0f, movementY);
         rb.AddForce(movement * speed);
-    }
 
-    void OnCollisionStay(){
-        // Verifica se a bola está no chão
+        if (jump && isGrounded)
+        {
+            isGrounded = false;
+            jump = false;
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);  // Aplica uma força de impulso para o pulo
+        }
+    }
+  
+     private void OnCollisionEnter(Collision other) {
         isGrounded = true;
-    }
-
+        
+     }
     void OnCollisionExit()
     {
         // Quando a bola sai do chão, ela não pode mais pular

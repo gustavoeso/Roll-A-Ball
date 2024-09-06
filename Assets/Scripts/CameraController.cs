@@ -20,12 +20,14 @@ public class CameraController : MonoBehaviour
     }
     void OnLook(InputValue movementValue){
         rotation = movementValue.Get<Vector2>();
+        print("OnLook -- rotation: " + rotation);
     }
     // Update is called once per frame
     void LateUpdate(){
         transform.position = player.transform.position + offset;
         float yRotation = rotation.y * 15;
         float xRotation = rotation.x * 25;
-        transform.rotation = Quaternion.Euler(baseRotation.x - yRotation,baseRotation.y + xRotation, 0);
+        var targetRotation = Quaternion.Euler(baseRotation.x - yRotation,baseRotation.y + xRotation, 0);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 0.1f);
     }
 }
