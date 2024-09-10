@@ -16,13 +16,29 @@ public class PlayerController : MonoBehaviour
     public GameObject winTextObject;
     private int count;
     private bool jump = false;
+    private Vector3 startPosition;
+
+    // Variáveis para o cronômetro
+    public float timeLimit = 180.0f;  // 3 minutos (180 segundos)
+    private float timeRemaining;
+    private bool timerIsRunning = true;
+    private bool gameHasEnded = false;  // Novo: flag para checar se o jogo terminou
+
+    public TextMeshProUGUI timerText;
+    public GameObject loseTextObject;
 
     void Start(){
-        rb = GetComponent <Rigidbody>();
+        rb = GetComponent<Rigidbody>();
+        startPosition = new Vector3(0, 0, 0); // Define a posição inicial (ponto 0,0,0)
         count = 0;
 
         SetCountText();
         winTextObject.SetActive(false);
+        loseTextObject.SetActive(false);  // Desativar o texto de derrota no início
+
+        // Inicializando o cronômetro
+        timeRemaining = timeLimit;
+        UpdateTimerText();
     }
 
     void OnMove(InputValue movementValue){
@@ -32,16 +48,46 @@ public class PlayerController : MonoBehaviour
     }
 
     void SetCountText(){
-        countText.text = "Count: "  + count.ToString();
+        countText.text = "Count: " + count.ToString();
 
-        if(count >= 12){
+        if(count >= 12 && !gameHasEnded){  // Verificação para não exibir a vitória se o jogo acabou
             winTextObject.SetActive(true);
+            timerIsRunning = false;  // Para o cronômetro quando o jogador vencer
+            gameHasEnded = true;     // Marca o jogo como terminado
         }
     }
 
     private void Update() {
-        // Detecta o pulo ao pressionar a tecla de espaço
-        
+        if (transform.position.y < -10){
+            // Retornando o player para a posição inicial
+            transform.position = startPosition;
+
+            // Zerando a velocidade do player
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+
+        // Cronômetro
+        if (timerIsRunning)
+        {
+            if (timeRemaining > 0)
+            {
+                timeRemaining -= Time.deltaTime;
+                UpdateTimerText();
+            }
+            else
+            {
+                // O tempo acabou, o jogador perdeu
+                timeRemaining = 0;
+                timerIsRunning = false;
+                Debug.Log("Você perdeu!");
+
+                // Exibir a mensagem de derrota
+                loseTextObject.SetActive(true);
+                gameHasEnded = true;  // Marca o jogo como terminado
+                UpdateTimerText();     // Garante que o cronômetro mostre 00:00
+            }
+        }
     }
 
     void OnJump(){
@@ -61,10 +107,10 @@ public class PlayerController : MonoBehaviour
         }
     }
   
-     private void OnCollisionEnter(Collision other) {
+    private void OnCollisionEnter(Collision other) {
         isGrounded = true;
-        
-     }
+    }
+
     void OnCollisionExit()
     {
         // Quando a bola sai do chão, ela não pode mais pular
@@ -72,12 +118,24 @@ public class PlayerController : MonoBehaviour
     }
     
     private void OnTriggerEnter(Collider other) {
-        if(other.gameObject.CompareTag("PickUp")){
+        if(other.gameObject.CompareTag("PickUp") && !gameHasEnded)  // Verificação para só contar se o jogo não terminou
+        {
             other.gameObject.SetActive(false);
             count++;
 
             SetCountText();
-            
         }
+    }
+
+    // Atualiza o texto do cronômetro na interface
+    void UpdateTimerText(){
+        int minutes = Mathf.FloorToInt(timeRemaining / 60);
+        int seconds = Mathf.FloorToInt(timeRemaining % 60);
+
+        // Garante que o cronômetro não mostre valores negativos
+        minutes = Mathf.Max(0, minutes);
+        seconds = Mathf.Max(0, seconds);
+
+        timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 }
