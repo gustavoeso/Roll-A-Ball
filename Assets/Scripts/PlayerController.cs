@@ -22,10 +22,15 @@ public class PlayerController : MonoBehaviour
     public float timeLimit = 180.0f;  // 3 minutos (180 segundos)
     private float timeRemaining;
     private bool timerIsRunning = true;
-    private bool gameHasEnded = false;  // Novo: flag para checar se o jogo terminou
+    private bool gameHasEnded = false;  // Flag para verificar se o jogo terminou
+
+    // Variáveis para o sistema de vidas
+    public int maxLives = 3;
+    private int currentLives;
+    public TextMeshProUGUI livesText;  // UI para exibir as vidas
+    public GameObject loseTextObject;  // Objeto de texto para a mensagem de derrota
 
     public TextMeshProUGUI timerText;
-    public GameObject loseTextObject;
 
     void Start(){
         rb = GetComponent<Rigidbody>();
@@ -34,11 +39,15 @@ public class PlayerController : MonoBehaviour
 
         SetCountText();
         winTextObject.SetActive(false);
-        loseTextObject.SetActive(false);  // Desativar o texto de derrota no início
+        loseTextObject.SetActive(false);  // Desativa o texto de derrota no início
 
         // Inicializando o cronômetro
         timeRemaining = timeLimit;
         UpdateTimerText();
+
+        // Inicializando o sistema de vidas
+        currentLives = maxLives;
+        UpdateLivesText();  // Atualiza o texto das vidas na interface
     }
 
     void OnMove(InputValue movementValue){
@@ -50,21 +59,16 @@ public class PlayerController : MonoBehaviour
     void SetCountText(){
         countText.text = "Count: " + count.ToString();
 
-        if(count >= 12 && !gameHasEnded){  // Verificação para não exibir a vitória se o jogo acabou
+        if(count >= 12 && !gameHasEnded){
             winTextObject.SetActive(true);
-            timerIsRunning = false;  // Para o cronômetro quando o jogador vencer
-            gameHasEnded = true;     // Marca o jogo como terminado
+            timerIsRunning = false;
+            gameHasEnded = true;
         }
     }
 
     private void Update() {
-        if (transform.position.y < -10){
-            // Retornando o player para a posição inicial
-            transform.position = startPosition;
-
-            // Zerando a velocidade do player
-            rb.velocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
+        if (transform.position.y < -10 && !gameHasEnded){  // Verifica se o jogo terminou antes de processar a queda
+            HandlePlayerFall();
         }
 
         // Cronômetro
@@ -77,15 +81,13 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                // O tempo acabou, o jogador perdeu
                 timeRemaining = 0;
                 timerIsRunning = false;
                 Debug.Log("Você perdeu!");
 
-                // Exibir a mensagem de derrota
                 loseTextObject.SetActive(true);
-                gameHasEnded = true;  // Marca o jogo como terminado
-                UpdateTimerText();     // Garante que o cronômetro mostre 00:00
+                gameHasEnded = true;
+                UpdateTimerText();  // Garante que o cronômetro mostre 00:00
             }
         }
     }
@@ -103,7 +105,7 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = false;
             jump = false;
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);  // Aplica uma força de impulso para o pulo
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
     }
   
@@ -113,12 +115,11 @@ public class PlayerController : MonoBehaviour
 
     void OnCollisionExit()
     {
-        // Quando a bola sai do chão, ela não pode mais pular
         isGrounded = false;
     }
-    
+
     private void OnTriggerEnter(Collider other) {
-        if(other.gameObject.CompareTag("PickUp") && !gameHasEnded)  // Verificação para só contar se o jogo não terminou
+        if(other.gameObject.CompareTag("PickUp") && !gameHasEnded)
         {
             other.gameObject.SetActive(false);
             count++;
@@ -127,12 +128,42 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // Lida com a queda do jogador
+    void HandlePlayerFall(){
+        if (currentLives > 0)  // Garante que não decremente vidas se já estiver em 0
+        {
+            currentLives--;
+            UpdateLivesText();  // Atualiza a UI das vidas
+
+            if (currentLives <= 0)
+            {
+                // O jogador perdeu após cair 3 vezes
+                Debug.Log("Você perdeu todas as vidas!");
+                loseTextObject.SetActive(true);
+                transform.position = startPosition;
+                gameHasEnded = true;  // Termina o jogo
+                timerIsRunning = false;  // Para o cronômetro
+            }
+            else
+            {
+                // Retorna o jogador para a posição inicial
+                transform.position = startPosition;
+                rb.velocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+            }
+        }
+    }
+
+    // Atualiza o texto das vidas na interface
+    void UpdateLivesText(){
+        livesText.text = "Vidas: " + currentLives.ToString();
+    }
+
     // Atualiza o texto do cronômetro na interface
     void UpdateTimerText(){
         int minutes = Mathf.FloorToInt(timeRemaining / 60);
         int seconds = Mathf.FloorToInt(timeRemaining % 60);
 
-        // Garante que o cronômetro não mostre valores negativos
         minutes = Mathf.Max(0, minutes);
         seconds = Mathf.Max(0, seconds);
 
