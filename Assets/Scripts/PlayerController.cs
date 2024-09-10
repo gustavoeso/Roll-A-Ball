@@ -12,6 +12,8 @@ public class PlayerController : MonoBehaviour
     public float speed = 0;
     public float jumpForce = 5f;
     private bool isGrounded;
+    [SerializeField] private float rayDistance = 0.5f;  // Distância do raycast para verificar se está no chão
+    public LayerMask groundLayer;  // Camada do chão para detectar o solo com o raycast
     public TextMeshProUGUI countText;
     public GameObject winTextObject;
     private int count;
@@ -90,11 +92,19 @@ public class PlayerController : MonoBehaviour
                 UpdateTimerText();  // Garante que o cronômetro mostre 00:00
             }
         }
+
+        // Verifica se o jogador está no chão usando raycasting
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, rayDistance, groundLayer);
+    }
+
+    private void OnDrawGizmos() {
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(transform.position, transform.position + Vector3.down * rayDistance);
     }
 
     void OnJump(){
         if (isGrounded)
-           jump = true;
+            jump = true;
     }
 
     private void FixedUpdate(){
@@ -103,21 +113,11 @@ public class PlayerController : MonoBehaviour
 
         if (jump && isGrounded)
         {
-            isGrounded = false;
             jump = false;
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);  // Aplica uma força de impulso para o pulo
         }
     }
-  
-    private void OnCollisionEnter(Collision other) {
-        isGrounded = true;
-    }
-
-    void OnCollisionExit()
-    {
-        isGrounded = false;
-    }
-
+    
     private void OnTriggerEnter(Collider other) {
         if(other.gameObject.CompareTag("PickUp") && !gameHasEnded)
         {

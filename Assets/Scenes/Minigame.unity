@@ -282,7 +282,7 @@ GameObject:
   - component: {fileID: 34508883}
   - component: {fileID: 34508882}
   - component: {fileID: 34508881}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: East Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1045,6 +1045,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 7
   jumpForce: 5
+  rayDistance: 0.7
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
   countText: {fileID: 308930243}
   winTextObject: {fileID: 714184777}
   timeLimit: 180
@@ -1618,7 +1622,7 @@ GameObject:
   - component: {fileID: 971020171}
   - component: {fileID: 971020170}
   - component: {fileID: 971020169}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: West Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1798,7 +1802,7 @@ GameObject:
   - component: {fileID: 1068954015}
   - component: {fileID: 1068954014}
   - component: {fileID: 1068954018}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2073,7 +2077,7 @@ GameObject:
   - component: {fileID: 1236373792}
   - component: {fileID: 1236373791}
   - component: {fileID: 1236373790}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: South Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2313,7 +2317,7 @@ GameObject:
   - component: {fileID: 1402634315}
   - component: {fileID: 1402634314}
   - component: {fileID: 1402634313}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: inclinado
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2617,7 +2621,7 @@ GameObject:
   - component: {fileID: 1534270802}
   - component: {fileID: 1534270801}
   - component: {fileID: 1534270800}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: direita-inclinado
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2829,7 +2833,7 @@ GameObject:
   - component: {fileID: 1618997062}
   - component: {fileID: 1618997061}
   - component: {fileID: 1618997060}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: esquerda_inclinado
   m_TagString: Untagged
   m_Icon: {fileID: 0}
