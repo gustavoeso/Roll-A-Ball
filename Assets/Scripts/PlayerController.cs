@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour
     private int count;
     private bool jump = false;
     private Vector3 startPosition;
-    private int squares = 25;
+    private int squares = 27; //max 27
 
     // Variáveis para o cronômetro
     public float timeLimit = 180.0f;  // 3 minutos (180 segundos)
@@ -34,12 +34,17 @@ public class PlayerController : MonoBehaviour
     private int currentLives;
     public TextMeshProUGUI livesText;  // UI para exibir as vidas
     public GameObject loseTextObject;  // Objeto de texto para a mensagem de derrota
-
     public TextMeshProUGUI timerText;
 
     // Invulnerabilidade após colisão
     private bool isInvulnerable = false;  // Controle de invulnerabilidade temporária
     public float invulnerabilityDuration = 1.0f;  // Tempo de invulnerabilidade após a colisão
+
+    // Som de Morte
+    public AudioSource deathSound;  // Referência ao som de morte
+
+    // Som de Coleta de Moeda
+    public AudioSource coinSound;  // Referência ao som de coleta
 
     void Start(){
         rb = GetComponent<Rigidbody>();
@@ -138,6 +143,12 @@ public class PlayerController : MonoBehaviour
             other.gameObject.SetActive(false);
             count++;
 
+            // Toca o som de coleta
+            if (coinSound != null)
+            {
+                coinSound.Play();
+            }
+
             SetCountText();
         }
     }
@@ -150,6 +161,12 @@ public class PlayerController : MonoBehaviour
             {
                 currentLives--;
                 UpdateLivesText();  // Atualiza a UI das vidas
+
+                // Toca o som de morte ao perder uma vida
+                if (deathSound != null)
+                {
+                    deathSound.Play();
+                }
 
                 if (currentLives <= 0)
                 {
