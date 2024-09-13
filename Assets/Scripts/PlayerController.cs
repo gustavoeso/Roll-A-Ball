@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
+using UnityEngine.SceneManagement;
+using System.Threading;
 
 public class PlayerController : MonoBehaviour
 {
@@ -59,14 +61,20 @@ public class PlayerController : MonoBehaviour
     }
 
     void SetCountText(){
-        countText.text = "Count: " + count.ToString();
+    countText.text = "Count: " + count.ToString();
 
-        if(count >= 12 && !gameHasEnded){
-            winTextObject.SetActive(true);
-            timerIsRunning = false;
-            gameHasEnded = true;
-        }
+    if(count >= 12 && !gameHasEnded && timeRemaining > 0){
+        winTextObject.SetActive(true);
+        timerIsRunning = false;
+        gameHasEnded = true;
+
+        // Armazena o tempo restante usando PlayerPrefs
+        PlayerPrefs.SetFloat("TimeRemaining", timeRemaining);
+        PlayerPrefs.Save();
+
+        SceneManager.LoadScene(3);  // Carrega a cena de vitória
     }
+}
 
     private void Update() {
         if (transform.position.y < -10 && !gameHasEnded){  // Verifica se o jogo terminou antes de processar a queda
@@ -90,6 +98,7 @@ public class PlayerController : MonoBehaviour
                 loseTextObject.SetActive(true);
                 gameHasEnded = true;
                 UpdateTimerText();  // Garante que o cronômetro mostre 00:00
+                SceneManager.LoadScene(2); // Carrega a cena de derrota
             }
         }
 
@@ -130,29 +139,31 @@ public class PlayerController : MonoBehaviour
 
     // Lida com a queda do jogador
     void HandlePlayerFall(){
-        if (currentLives > 0)  // Garante que não decremente vidas se já estiver em 0
-        {
-            currentLives--;
-            UpdateLivesText();  // Atualiza a UI das vidas
+    if (currentLives > 0)  // Garante que não decremente vidas se já estiver em 0
+    {
+        currentLives--;
+        UpdateLivesText();  // Atualiza a UI das vidas
 
-            if (currentLives <= 0)
-            {
-                // O jogador perdeu após cair 3 vezes
-                Debug.Log("Você perdeu todas as vidas!");
-                loseTextObject.SetActive(true);
-                transform.position = startPosition;
-                gameHasEnded = true;  // Termina o jogo
-                timerIsRunning = false;  // Para o cronômetro
-            }
-            else
-            {
-                // Retorna o jogador para a posição inicial
-                transform.position = startPosition;
-                rb.velocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
-            }
+        if (currentLives <= 0)
+        {
+            // O jogador perdeu após cair 3 vezes
+            Debug.Log("Você perdeu todas as vidas!");
+            loseTextObject.SetActive(true);
+            gameHasEnded = true;  // Termina o jogo
+            timerIsRunning = false;  // Para o cronômetro
+
+            // Carrega a cena de derrota
+            SceneManager.LoadScene(2);  // Certifique-se de que a cena de derrota está na posição 2 do Build Settings
+        }
+        else
+        {
+            // Retorna o jogador para a posição inicial
+            transform.position = startPosition;
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
         }
     }
+}
 
     // Atualiza o texto das vidas na interface
     void UpdateLivesText(){

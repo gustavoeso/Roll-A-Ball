@@ -14,6 +14,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Minigame.unity
     guid: 90a56cc44f8c7a344b5acaed6a921878
+  - enabled: 1
+    path: Assets/Scenes/Final-perdeu.unity
+    guid: ccf2404eea369984ea490dbc00734143
+  - enabled: 1
+    path: Assets/Scenes/Final-ganhou.unity
+    guid: a6e62d002aafa364e8e24ae77548d233
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 0cb0235c033ed384aba0c599fb000bf3,
       type: 2}
