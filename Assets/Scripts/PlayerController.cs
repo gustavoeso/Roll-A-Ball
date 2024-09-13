@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour
     private int count;
     private bool jump = false;
     private Vector3 startPosition;
+    private int squares = 25;
 
     // Variáveis para o cronômetro
     public float timeLimit = 180.0f;  // 3 minutos (180 segundos)
@@ -35,6 +36,10 @@ public class PlayerController : MonoBehaviour
     public GameObject loseTextObject;  // Objeto de texto para a mensagem de derrota
 
     public TextMeshProUGUI timerText;
+
+    // Invulnerabilidade após colisão
+    private bool isInvulnerable = false;  // Controle de invulnerabilidade temporária
+    public float invulnerabilityDuration = 1.0f;  // Tempo de invulnerabilidade após a colisão
 
     void Start(){
         rb = GetComponent<Rigidbody>();
@@ -61,20 +66,20 @@ public class PlayerController : MonoBehaviour
     }
 
     void SetCountText(){
-    countText.text = "Count: " + count.ToString();
+        countText.text = "Count: " + count.ToString();
 
-    if(count >= 12 && !gameHasEnded && timeRemaining > 0){
-        winTextObject.SetActive(true);
-        timerIsRunning = false;
-        gameHasEnded = true;
+        if(count >= squares && !gameHasEnded && timeRemaining > 0){
+            winTextObject.SetActive(true);
+            timerIsRunning = false;
+            gameHasEnded = true;
 
-        // Armazena o tempo restante usando PlayerPrefs
-        PlayerPrefs.SetFloat("TimeRemaining", timeRemaining);
-        PlayerPrefs.Save();
+            // Armazena o tempo restante usando PlayerPrefs
+            PlayerPrefs.SetFloat("TimeRemaining", timeRemaining);
+            PlayerPrefs.Save();
 
-        SceneManager.LoadScene(3);  // Carrega a cena de vitória
+            SceneManager.LoadScene(3);  // Carrega a cena de vitória
+        }
     }
-}
 
     private void Update() {
         if (transform.position.y < -10 && !gameHasEnded){  // Verifica se o jogo terminou antes de processar a queda
@@ -137,33 +142,46 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Lida com a queda do jogador
-    void HandlePlayerFall(){
-    if (currentLives > 0)  // Garante que não decremente vidas se já estiver em 0
-    {
-        currentLives--;
-        UpdateLivesText();  // Atualiza a UI das vidas
-
-        if (currentLives <= 0)
+    // Lida com a queda do jogador ou colisão com o cubo vermelho
+    public void HandlePlayerFall(){
+        if (!isInvulnerable)  // Verifica se o jogador não está invulnerável
         {
-            // O jogador perdeu após cair 3 vezes
-            Debug.Log("Você perdeu todas as vidas!");
-            loseTextObject.SetActive(true);
-            gameHasEnded = true;  // Termina o jogo
-            timerIsRunning = false;  // Para o cronômetro
+            if (currentLives > 0)
+            {
+                currentLives--;
+                UpdateLivesText();  // Atualiza a UI das vidas
 
-            // Carrega a cena de derrota
-            SceneManager.LoadScene(2);  // Certifique-se de que a cena de derrota está na posição 2 do Build Settings
-        }
-        else
-        {
-            // Retorna o jogador para a posição inicial
-            transform.position = startPosition;
-            rb.velocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
+                if (currentLives <= 0)
+                {
+                    loseTextObject.SetActive(true);
+                    transform.position = startPosition;
+                    gameHasEnded = true;  // Termina o jogo
+                    timerIsRunning = false;  // Para o cronômetro
+
+                    // Carrega a cena de derrota
+                    SceneManager.LoadScene(2);  // Certifique-se de que a cena de derrota está no índice 2 do Build Settings
+                }
+                else
+                {
+                    // Retorna o jogador para a posição inicial
+                    transform.position = startPosition;
+                    rb.velocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                }
+
+                // Iniciar período de invulnerabilidade
+                StartCoroutine(InvulnerabilityCoroutine());
+            }
         }
     }
-}
+
+    // Coroutine para controlar o período de invulnerabilidade
+    private IEnumerator InvulnerabilityCoroutine()
+    {
+        isInvulnerable = true;  // Define o jogador como invulnerável
+        yield return new WaitForSeconds(invulnerabilityDuration);  // Aguarda o tempo de invulnerabilidade
+        isInvulnerable = false;  // Jogador volta a ser vulnerável
+    }
 
     // Atualiza o texto das vidas na interface
     void UpdateLivesText(){
