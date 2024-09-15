@@ -55,4 +55,16 @@ public class EnemyAI : MonoBehaviour
             }
         }
     }
+
+    // Método para desenhar o raio de detecção e a área da região
+    private void OnDrawGizmos()
+    {
+        // Define a cor para o raio de detecção do jogador
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, detectionRange);  // Desenha o raio de detecção
+
+        // Define a cor para a área onde o inimigo pode se mover
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(mapCenter, regionRadius);  // Desenha o limite da região permitida
+    }
 }
