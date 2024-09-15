@@ -15,7 +15,6 @@ public class PlayerController : MonoBehaviour
     private bool isGrounded;
     [SerializeField] private float rayDistance = 0.6f;  // Aumenta o valor do raycast para garantir que detecte o chão
     public LayerMask groundLayer;  // Camada do chão para detectar o solo com o raycast
-    public GameObject winTextObject;
     private int count;
     private bool jump = false;
     private Vector3 startPosition;
@@ -37,9 +36,6 @@ public class PlayerController : MonoBehaviour
     public int maxLives = 5;  // Agora o jogador tem 5 vidas
     private int currentLives;
     public GameObject[] heartImages;  // Array para armazenar as imagens de coração
-
-    public GameObject loseTextObject;  // Objeto de texto para a mensagem de derrota
-
     // Invulnerabilidade após colisão
     private bool isInvulnerable = false;  // Controle de invulnerabilidade temporária
     public float invulnerabilityDuration = 1.0f;  // Tempo de invulnerabilidade após a colisão
@@ -54,9 +50,6 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         startPosition = new Vector3(0, 0, 0); // Define a posição inicial (ponto 0,0,0)
         count = 0;
-
-        winTextObject.SetActive(false);
-        loseTextObject.SetActive(false);  // Desativa o texto de derrota no início
 
         // Inicializando o cronômetro
         timeRemaining = timeLimit;
@@ -87,7 +80,6 @@ public class PlayerController : MonoBehaviour
     void CheckWinCondition(){
         // Verifica se o jogador coletou todas as peças
         if(count >= squares && !gameHasEnded && timeRemaining > 0){
-            winTextObject.SetActive(true);
             timerIsRunning = false;
             gameHasEnded = true;
 
@@ -124,7 +116,6 @@ public class PlayerController : MonoBehaviour
                 timerIsRunning = false;
                 Debug.Log("Você perdeu!");
 
-                loseTextObject.SetActive(true);
                 gameHasEnded = true;
                 SceneManager.LoadScene(2); // Carrega a cena de derrota
             }
@@ -197,7 +188,6 @@ public class PlayerController : MonoBehaviour
 
                 if (currentLives <= 0)
                 {
-                    loseTextObject.SetActive(true);
                     transform.position = startPosition;
                     gameHasEnded = true;  // Termina o jogo
                     timerIsRunning = false;  // Para o cronômetro
