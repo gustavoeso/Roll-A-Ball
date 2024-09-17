@@ -3931,10 +3931,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 521869312}
-  speed: 5
-  detectionRange: 10
+  speed: 4
+  detectionRange: 13.15
   mapCenter: {x: 0, y: -3.817313, z: 0}
-  regionRadius: 20
 --- !u!54 &1112956121
 Rigidbody:
   m_ObjectHideFlags: 0

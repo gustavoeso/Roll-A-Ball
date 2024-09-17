@@ -8,7 +8,6 @@ public class EnemyAI : MonoBehaviour
     public float speed = 5f;  // Velocidade do inimigo
     public float detectionRange = 10f;  // Distância máxima em que o inimigo persegue o jogador
     public Vector3 mapCenter;  // Centro da região onde o inimigo pode se mover
-    public float regionRadius = 20f;  // Raio da região permitida para o inimigo
 
     private Rigidbody rb;
     private PlayerController playerController;  // Referência ao script do jogador
@@ -31,15 +30,9 @@ public class EnemyAI : MonoBehaviour
             Vector3 direction = (player.position - transform.position).normalized;
 
             // Aplica a força para o inimigo se mover na direção do jogador
-            rb.AddForce(direction * speed);
-        }
-
-        // Verifica se o inimigo está dentro da região permitida
-        if (Vector3.Distance(transform.position, mapCenter) > regionRadius)
-        {
-            // Se o inimigo sair da região, empurra-o de volta para o centro
-            Vector3 directionToCenter = (mapCenter - transform.position).normalized;
-            rb.AddForce(directionToCenter * speed);
+            // rb.AddForce(direction * speed);
+            Vector3 newDir = new Vector3(direction.x, 0, direction.z);  // Ignora a direção vertical
+            rb.velocity = newDir * speed;  // Define a velocidade do inimigo	
         }
     }
 
@@ -62,9 +55,5 @@ public class EnemyAI : MonoBehaviour
         // Define a cor para o raio de detecção do jogador
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRange);  // Desenha o raio de detecção
-
-        // Define a cor para a área onde o inimigo pode se mover
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(mapCenter, regionRadius);  // Desenha o limite da região permitida
     }
 }

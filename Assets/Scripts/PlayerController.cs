@@ -19,7 +19,6 @@ public class PlayerController : MonoBehaviour
     private bool jump = false;
     private Vector3 startPosition;
     private int squares = 27; // Número total de peças
-
     // Variáveis para o cronômetro
     public float timeLimit = 180.0f;  // 3 minutos (180 segundos)
     private float timeRemaining;
@@ -69,6 +68,9 @@ public class PlayerController : MonoBehaviour
         // Inicializando o sistema de vidas
         currentLives = maxLives;
         UpdateHeartsUI();  // Atualiza o estado das imagens de coração
+
+        // Iniciar a animação de onda nos corações
+        StartCoroutine(AnimateHearts());
     }
 
     void OnMove(InputValue movementValue){
@@ -188,7 +190,6 @@ public class PlayerController : MonoBehaviour
 
                 if (currentLives <= 0)
                 {
-                    transform.position = startPosition;
                     gameHasEnded = true;  // Termina o jogo
                     timerIsRunning = false;  // Para o cronômetro
 
@@ -222,6 +223,48 @@ public class PlayerController : MonoBehaviour
             {
                 heartImages[i].SetActive(false);  // Desativa a imagem se o jogador perdeu essa vida
             }
+        }
+    }
+
+    // Coroutine para animar as imagens dos corações em um movimento de onda
+    private IEnumerator AnimateHearts()
+    {
+        while (true)
+        {
+            for (int i = 0; i < heartImages.Length; i++)
+            {
+                StartCoroutine(AnimateHeart(heartImages[i].GetComponent<RectTransform>(), i * 0.1f));
+            }
+
+            yield return new WaitForSeconds(1.5f);  // Intervalo para repetir a animação
+        }
+    }
+
+    // Anima um único coração com um movimento de "onda"
+    private IEnumerator AnimateHeart(RectTransform heart, float delay)
+    {
+        yield return new WaitForSeconds(delay);  // Delay para criar o efeito de onda
+        Vector3 originalPosition = heart.localPosition;
+        Vector3 targetPosition = originalPosition + new Vector3(0, 10, 0);  // Sobe 10 pixels
+
+        float duration = 0.5f;
+        float time = 0;
+
+        // Animação de subir
+        while (time < duration)
+        {
+            time += Time.deltaTime;
+            heart.localPosition = Vector3.Lerp(originalPosition, targetPosition, time / duration);
+            yield return null;
+        }
+
+        // Animação de descer
+        time = 0;
+        while (time < duration)
+        {
+            time += Time.deltaTime;
+            heart.localPosition = Vector3.Lerp(targetPosition, originalPosition, time / duration);
+            yield return null;
         }
     }
 
